@@ -8,6 +8,10 @@ const Packet  = require('./Packet');
 
 class Service {
     constructor(name) {
+        if(typeof name !== 'string') {
+            name = null;
+        }
+
         this.path = Helper.getPath(this);
         this.name = Helper.formatServiceName(name || path.basename(this.path));
 
@@ -54,7 +58,7 @@ class Service {
         }
 
         if(handler) {
-            handler(message.content, packet);
+            handler(...message.content, packet);
         } else {
             packet.status(new Error('Method ' + method + ' not found.'));
         }
