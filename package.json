@@ -4,8 +4,19 @@
   "description": "Action Message Format library for node.js",
   "main": "src/index.js",
   "scripts": {},
-  "author": "Pyrodash",
+  "author": {
+    "name": "Jackie",
+    "email": "me@jackie.pw",
+    "url": "https://jackie.pw"
+  },
   "license": "MIT",
+  "keywords": ["amf", "action message format", "amf0", "amf3"],
+  "homepage": "https://github.com/Pyrodash/libamf",
+  "bugs": "https://github.com/Pyrodash/libamf/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pyrodash/libamf.git"
+  },
   "dependencies": {
     "body-parser": "^1.19.0",
     "bytearray-node": "github:pyrodash/bytearray-node",
