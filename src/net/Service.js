@@ -1,0 +1,66 @@
+'use strict';
+
+const path    = require('path');
+const Helper  = require('./Helper');
+
+const Message = require('./Message');
+const Packet  = require('./Packet');
+
+class Service {
+    constructor(name) {
+        this.path = Helper.getPath(this);
+        this.name = Helper.formatServiceName(name || path.basename(this.path));
+
+        this.methods = {};
+    }
+
+    /**
+     * Registers a method to allow it to be used since JavaScript does not have typed functions so we have no way of determining what functions should and shouldn't be usable.
+     * @param {String} name - Name of the method.
+     * @param {Function|String} method - Method to be registered. This can be a function or the name of a function inside this class instance.
+     */
+    register(name, method) {
+        if(!name) {
+            throw new Error('Tried to register a method ' + method + ' without a name.');
+        }
+
+        if(typeof method === 'string' && typeof this[method] === 'function') {
+            method = this[method].bind(this);
+        }
+
+        if(typeof method === 'function') {
+            this.methods[name] = method;
+        } else {
+            throw new Error('Tried to register an invalid method: ' + method);
+        }
+    }
+
+    /**
+     * Processes a message.
+     * @param {String} method 
+     * @param {Message} message 
+     * @param {Packet} packet 
+     */
+    process(method, message, packet) {
+        var handler;
+
+        if(this.requireRegistration || Service.RequireRegistration) {
+            handler = this.methods[name];
+        } else {
+            if(!method.startsWith('_')) {
+                handler = typeof this[method] === 'function' ? this[method].bind(this) : null;
+            }
+        }
+
+        if(handler) {
+            handler(message.content, packet);
+        } else {
+            packet.status(new Error('Method ' + method + ' not found.'));
+        }
+    }
+}
+
+Service.RequireRegistration = true;
+Service.ForceSuffix = true;
+
+module.exports = Service;
