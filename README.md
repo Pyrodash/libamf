@@ -59,7 +59,7 @@ libamf.Service.RequireRegistration = false;
 const {Client} = require('libamf');
 const client = new Client();
 
-client.connect('http://localhost:8080/amf');
+client.connect('http://localhost:8080/');
 client.call('pizza-service.order', { type: 'cheese' }).then(res => {
 	console.log(res);
 });
