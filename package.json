@@ -20,7 +20,9 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "bytearray-node": "github:pyrodash/bytearray-node",
-    "express": "^4.17.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
     "tape": "^4.11.0"
   }
 }
