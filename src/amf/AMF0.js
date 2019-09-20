@@ -30,6 +30,10 @@ class AMF0 extends AbstractAMF {
         this.reset();
     }
 
+    get markers() {
+        return Markers;
+    }
+
     resetReferences() {
         this.references = [];
     }
