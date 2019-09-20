@@ -22,7 +22,7 @@ class Server extends EventEmitter {
         /**
          * @type {String}
          */
-        this.path = opts.path || '/amf';
+        this.path = opts.path === undefined ? '/amf' : (opts.path || '/');
 
         /**
          * XML crossdomain
