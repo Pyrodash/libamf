@@ -48,11 +48,11 @@ server.listen(8080, () => {
 ```
 You can stop services from enforcing the `-service` suffix to the name by doing:
 ```javascript
-AMF.Service.ForceSuffix = false;
+libamf.Service.ForceSuffix = false;
 ```
 You can also allow any service method to be used without registration by doing:
 ```javascript
-AMF.Service.RequireRegistration = false;
+libamf.Service.RequireRegistration = false;
 ```
 ### Client
 ```javascript
