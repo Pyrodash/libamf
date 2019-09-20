@@ -35,6 +35,11 @@ class Server extends EventEmitter {
          */
         this.services = {};
 
+        /**
+         * @type {Array<Function>}
+         */
+        this.middleware = [];
+
         this.init();
     }
 
@@ -89,10 +94,31 @@ class Server extends EventEmitter {
         return this.services;
     }
 
+    /**
+     * @returns {Array<Promise>}
+     */
+    promisifyMiddleware(packet) {
+        const promises = [];
+
+        this.middleware.forEach(middleware => {
+            promises.push(new Promise((resolve, reject) => {
+                middleware(packet, resolve);
+            }));
+        });
+
+        return promises;
+    }
+
     processPacket(req, res) {
-        Packet.read(req, res).then(packet => {
+        Packet.read(req, res).then(async packet => {
+            const middleware = this.promisifyMiddleware(packet);
+
+            for(const promise of middleware) {
+                await promise;
+            }
+
             this.emit('data', packet);
-            
+
             for(const message of packet.messages) {
                 const args = message.targetURI.split('.');
                 const method = args.pop();
@@ -103,6 +129,18 @@ class Server extends EventEmitter {
                 }
             }
         });
+    }
+
+    /**
+     * Adds middleware 
+     * @param {Function} fn
+     */
+    use(fn) {
+        if(typeof fn === 'function') {
+            this.middleware.push(fn);
+        } else {
+            throw new Error('Invalid middleware function: ' + fn);
+        }
     }
 }
 

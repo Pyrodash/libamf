@@ -43,7 +43,23 @@ class PizzaService extends AMF.Service {
 
 const service = new PizzaService();
 
+server.use((packet, next) => {
+    packet.lol = [];
+
+    next();
+});
+
+server.use((packet, next) => {
+    packet.lol.push('lmao');
+
+    next();
+});
+
+server.on('data', packet => {
+    console.log(packet);
+});
+
 server.registerService(service);
-server.listen(() => {
+server.listen(9991, () => {
     console.log('AMF server listening on port ' + server.port);
 });
