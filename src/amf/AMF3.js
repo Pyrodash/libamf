@@ -38,6 +38,10 @@ class AMF3 extends AbstractAMF {
         this.reset();
     }
 
+    get markers() {
+        return Markers;
+    }
+
     resetReferences() {
         this.stringTable = new Map();
         this.objectTable = new Map();
