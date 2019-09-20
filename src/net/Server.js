@@ -82,6 +82,13 @@ class Server extends EventEmitter {
         this.services[service.name] = service;
     }
 
+    /**
+     * @returns {Object}
+     */
+    getServices() {
+        return this.services;
+    }
+
     processPacket(req, res) {
         Packet.read(req, res).then(packet => {
             this.emit('data', packet);
@@ -89,7 +96,7 @@ class Server extends EventEmitter {
             for(const message of packet.messages) {
                 const args = message.targetURI.split('.');
                 const method = args.pop();
-                const service = this.services[args.join('.')];
+                const service = this.getServices()[args.join('.')];
 
                 if(service) {
                     service.process(method, message, packet);

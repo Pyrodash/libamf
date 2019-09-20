@@ -12,6 +12,7 @@ class Service {
         this.name = Helper.formatServiceName(name || path.basename(this.path));
 
         this.methods = {};
+        this.bannedMethods = [];
     }
 
     /**
@@ -47,7 +48,7 @@ class Service {
         if(this.requireRegistration || Service.RequireRegistration) {
             handler = this.methods[name];
         } else {
-            if(!method.startsWith('_')) {
+            if(!method.startsWith('_') && !Service.BannedMethods.includes(method) && (!this.bannedMethods || !this.bannedMethods.includes(method))) {
                 handler = typeof this[method] === 'function' ? this[method].bind(this) : null;
             }
         }
@@ -60,6 +61,7 @@ class Service {
     }
 }
 
+Service.BannedMethods = ['constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', 'toLocaleString']; // Ban default object methods
 Service.RequireRegistration = true;
 Service.ForceSuffix = true;
 
