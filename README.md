@@ -1,6 +1,8 @@
 # libamf
 An Action Message Format library for node.js.
 
+![Dependencies](https://img.shields.io/david/pyrodash/libamf) ![License](https://img.shields.io/npm/l/libamf)
+
 ## Usage
 ### Parser/Serializer
 ```javascript
