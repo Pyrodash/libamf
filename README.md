@@ -21,14 +21,12 @@ class PizzaService extends Service {
 		this.register('cancelOrder', this.cancelOrder.bind(this));
 	}
 	
-	handleOrder(data, packet) {
-        const pizza = data[0];
-
+	handleOrder(pizza, packet) {
 		packet.respond({ status: 1, message: pizza.type + ' pizza ordered!'});
 	}
 	
-	cancelOrder(data, packet) {
-		const id = data.id;
+	cancelOrder(pizza, packet) {
+		const id = pizza.id;
 		
 		packet.respond({ status: 1, message: 'Order ' + id + ' has been cancelled successfully.'});
 	}
