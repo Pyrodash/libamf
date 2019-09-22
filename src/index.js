@@ -29,7 +29,7 @@ class AMF {
     exportClasses() {
         for (var i in classMap) {
             const cl = classMap[i];
-            const name = cl.constructor.name;
+            const name = cl.name;
             
             this[name] = cl;
         }
@@ -46,7 +46,7 @@ class AMF {
     registerClassAlias(name, cls) {
         if(typeof name === 'function' && !cls) {
             cls = name;
-            name = cls.constructor.name;
+            name = cls.name;
         }
 
         classMap[name] = cls;
