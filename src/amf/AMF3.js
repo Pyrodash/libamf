@@ -146,6 +146,23 @@ class AMF3 extends AbstractAMF {
         return false;
     }
 
+    /**
+     * @param {Function} data
+     */
+    getTraitsByClass(data) {
+        if(typeof data === 'object') {
+            data = data.constructor;
+        }
+
+        for(const traits of this.traitTable) {
+            if(traits.class === data) {
+                return traits;
+            }
+        }
+
+        return null;
+    }
+
     read(marker) {
         if(!marker) {
             marker = this.readByte();
@@ -403,6 +420,8 @@ class AMF3 extends AbstractAMF {
         const cls = this.getClass(traits.className);
         const obj = cls ? new cls : (traits.className.length > 0 ? Utils.constructClass(traits.className) : new Object());
 
+        traits.class = cls;
+
         this.objectTable.set(this.objectTable.size, obj);
 
         if(traits.isExternalizable) {
@@ -467,17 +486,15 @@ class AMF3 extends AbstractAMF {
 
     /**
      * @param {*} data 
-     * @param {Boolean} ignoreExternalizable - Whether or not to ignore the fact that the data is an externalizable (to avoid infinite loops)
      */
-    write(data, ignoreExternalizable = false) {
-        // TODO: Get the caller of this function and set ignoreExternalizable based on it.
+    write(data) {
         if(data == null) {
             this.writeByte(data === undefined ? Markers.UNDEFINED : Markers.NULL);
 
             return this.buffer;
         }
 
-        if(!ignoreExternalizable && typeof data.writeExternal === 'function') {
+        if(typeof data.writeExternal === 'function') {
             this.writeObject(data);
 
             return this.buffer;
@@ -506,7 +523,7 @@ class AMF3 extends AbstractAMF {
                 } else if(data instanceof XML) {
                     this.writeXML(data);
                 } else {
-                    this.writeObject(data, ignoreExternalizable);
+                    this.writeObject(data);
                 }
             break;
             default:
@@ -699,42 +716,66 @@ class AMF3 extends AbstractAMF {
 
     /**
      * @param {Object} data
-     * @param {Boolean} [ignoreExternalizable=false]
      */
-    writeObject(data, ignoreExternalizable = false) {
+    writeObject(data) {
         this.writeByte(Markers.OBJECT);
 
         if(!this.byReference(data)) {
-            const name = data.constructor === Object ? EMPTY_STRING : this.getClassName(data);
+            const traits = this.writeObjectTraits(data);
 
-            const isExternalizable = typeof data.writeExternal === 'function';
-            const isDynamic = data.isDynamic !== undefined ? data.isDynamic : false; // not quite sure how this is supposed to work
-
-            const keys = Object.keys(data);
-            const count = keys.length;
-            const traits = {
-                className: name,
-                isExternalizable,
-                isDynamic,
-                properties: keys
-            };
-
-            if(!this.byReference(traits, 'trait')) {
-                this.writeUInt29(3 | (isExternalizable ? 4 : 0) | (isDynamic ? 8 : 0) | (count << 4));
-                this.writeString(name, false);
-            }
-
-            if(ignoreExternalizable || !isExternalizable) {
-                for (var i = 0; i < count; i++) {
-                    this.writeString(keys[i], false);
-                }
-
-                for (var i = 0; i < count; i++) {
-                    this.write(data[keys[i]]);
-                }
+            if(!traits.isExternalizable) {
+                this.writeObjectProperties(data, traits);
             } else {
-                data.writeExternal(this);
+                data.writeExternal(this, traits);
             }
+        }
+    }
+    
+    /**
+     * @param {Object}
+     * @returns {Object}
+     */
+    writeObjectTraits(data) {
+        const name = data.constructor === Object ? EMPTY_STRING : this.getClassName(data);
+
+        const isExternalizable = typeof data.writeExternal === 'function';
+        const isDynamic = data.isDynamic !== undefined ? data.isDynamic : false; // not quite sure how this is supposed to work
+
+        const keys = Object.keys(data);
+        const count = keys.length;
+        const traits = {
+            className: name,
+            isExternalizable,
+            isDynamic,
+            properties: keys,
+            class: data.constructor
+        };
+
+        if (!this.byReference(traits, 'trait')) {
+            this.writeUInt29(3 | (isExternalizable ? 4 : 0) | (isDynamic ? 8 : 0) | (count << 4));
+            this.writeString(name, false);
+        }
+
+        return traits;
+    }
+
+    /**
+     * @param {Object} data
+     * @param {Object} traits
+     */
+    writeObjectProperties(data, traits) {
+        if(!traits) {
+            traits = this.getTraitsByClass(data);
+        }
+
+        const properties = traits.properties || Object.keys(data);
+
+        for (var i = 0; i < properties.length; i++) {
+            this.writeString(properties[i], false);
+        }
+
+        for (var i = 0; i < properties.length; i++) {
+            this.write(data[properties[i]]);
         }
     }
 }

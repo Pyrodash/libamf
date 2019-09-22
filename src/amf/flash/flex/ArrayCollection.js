@@ -10,8 +10,8 @@ class ArrayCollection extends Array {
         }
     }
 
-    writeExternal(AMF3) {
-        AMF3.write(this, true);
+    writeExternal(AMF3, traits) {
+        AMF3.writeObjectProperties(this, traits);
     }
 
     empty() {
