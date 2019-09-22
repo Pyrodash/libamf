@@ -369,7 +369,7 @@ class AMF3 extends AbstractAMF {
     }
 
     /**
-     * @param {Boolean} legacy - Whether or not to use the AMF0 format without references.
+     * @param {Boolean} legacy
      * @returns {XML}
      */
     readXML(legacy = false) {
