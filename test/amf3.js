@@ -111,7 +111,7 @@ it('can read/write vectors', (tape) => {
         }
     }
 
-    AMF.registerClassAlias('Person', Person);
+    AMF.registerClassAlias('com.Person', Person);
 
     const intV = new AMF.Vector(Number);
     intV.push(1, 2, 5, 8);
