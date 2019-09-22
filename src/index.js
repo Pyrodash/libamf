@@ -2,9 +2,6 @@
 
 const {convertToBuffer} = require('./utils/Utils');
 
-const AMF0 = require('./amf/AMF0');
-const AMF3 = require('./amf/AMF3');
-
 const classMap = {
     'flex.messaging.io.ArrayCollection': require('./amf/flash/flex/ArrayCollection')
 };
@@ -33,9 +30,6 @@ class AMF {
             
             this[name] = cl;
         }
-
-        this.AMF0 = AMF0;
-        this.AMF3 = AMF3;
     }
 
     /**
@@ -59,7 +53,7 @@ class AMF {
      * @private
      */
     run(action, data, encoding) {
-        const handler = encoding == 3 ? new AMF3(this) : new AMF0(this);
+        const handler = encoding == 3 ? new this.AMF3(this) : new this.AMF0(this);
         var method;
 
         handler.reset();
@@ -109,6 +103,9 @@ class AMF {
 }
 
 module.exports = new AMF;
+
+module.exports.AMF0 = require('./amf/AMF0');
+module.exports.AMF3 = require('./amf/AMF3');
 
 module.exports.XML = require('./amf/flash/XML');
 module.exports.Dictionary = require('./amf/flash/Dictionary');
