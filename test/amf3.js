@@ -84,8 +84,10 @@ it('can read/write typed objects', (tape) => {
     const res = AMF.deserialize(AMF.serialize(zaseth));
 
     //res.greet();
-
+    
     tape.deepEqual(zaseth, res);
+    sTest(new AMF.ArrayCollection(1, 2, 3), tape);
+
     tape.end();
 });
 
