@@ -1,9 +1,11 @@
 'use strict';
 
 class ArrayCollection extends Array {
-    readExternal(AMF3) {
+    readExternal(AMF3, traits) {
         this.empty();
-        const source = AMF3.readObjectProperties();
+        
+        const source = {};
+        AMF3.readObjectProperties(source, traits);
 
         for(var i in source) {
             this.push(source[i]);
