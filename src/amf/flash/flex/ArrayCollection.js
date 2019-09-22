@@ -11,7 +11,7 @@ class ArrayCollection extends Array {
     }
 
     writeExternal(AMF3) {
-        this.writeObject(AMF3, true);
+        AMF3.write(this, true);
     }
 
     empty() {

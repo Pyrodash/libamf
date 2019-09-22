@@ -465,14 +465,19 @@ class AMF3 extends AbstractAMF {
         return traits;
     }
 
-    write(data) {
+    /**
+     * @param {*} data 
+     * @param {Boolean} ignoreExternalizable - Whether or not to ignore the fact that the data is an externalizable (to avoid infinite loops)
+     */
+    write(data, ignoreExternalizable = false) {
+        // TODO: Get the caller of this function and set ignoreExternalizable based on it.
         if(data == null) {
             this.writeByte(data === undefined ? Markers.UNDEFINED : Markers.NULL);
 
             return this.buffer;
         }
 
-        if(typeof data.writeExternal === 'function') {
+        if(!ignoreExternalizable && typeof data.writeExternal === 'function') {
             this.writeObject(data);
 
             return this.buffer;
@@ -501,7 +506,7 @@ class AMF3 extends AbstractAMF {
                 } else if(data instanceof XML) {
                     this.writeXML(data);
                 } else {
-                    this.writeObject(data);
+                    this.writeObject(data, ignoreExternalizable);
                 }
             break;
             default:
