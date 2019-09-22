@@ -3,7 +3,7 @@
 class ArrayCollection extends Array {
     readExternal(AMF3) {
         this.empty();
-        const source = AMF3.read();
+        const source = AMF3.readObjectProperties();
 
         for(var i in source) {
             this.push(source[i]);
