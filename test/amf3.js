@@ -125,6 +125,22 @@ it('can read/write vectors', (tape) => {
     tape.end();
 });
 
+it('can read/write xml', (tape) => {
+    const xml = new AMF.XML({
+        person: {
+            '@name': 'Tent',
+            '@age': '18',
+            friend: {
+                '@name': 'Jackie',
+                '@age': '16'
+            }
+        }
+    });
+
+    sTest(xml, tape);
+    tape.end();
+});
+
 it('can read/write ByteArray', (tape) => {
     const ba = new AMF.ByteArray();
     ba.writeShort(5);

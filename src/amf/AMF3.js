@@ -5,6 +5,7 @@ const Markers        = require('./Markers').AMF3;
 
 const Dictionary     = require('./flash/Dictionary');
 const Vector         = require('./flash/Vector');
+const XML            = require('./flash/XML');
 
 const AbstractAMF    = require('./AbstractAMF');
 const ByteArray      = require('bytearray-node');
@@ -60,25 +61,25 @@ class AMF3 extends AbstractAMF {
         var value;
 
         // Each byte must be treated as unsigned
-        var b = this.readByte() & 0xFF;
+        var b = this.readUnsignedByte() & 0xFF;
 
         if (b < 128)
             return b;
 
         value = (b & 0x7F) << 7;
-        b = this.readByte() & 0xFF;
+        b = this.readUnsignedByte() & 0xFF;
 
         if (b < 128)
             return (value | b);
 
         value = (value | (b & 0x7F)) << 7;
-        b = this.readByte() & 0xFF;
+        b = this.readUnsignedByte() & 0xFF;
 
         if (b < 128)
             return (value | b);
 
         value = (value | (b & 0x7F)) << 8;
-        b = this.readByte() & 0xFF;
+        b = this.readUnsignedByte() & 0xFF;
 
         return (value | b);
     }
@@ -89,19 +90,19 @@ class AMF3 extends AbstractAMF {
      */
     writeUInt29(value) {
         if (value < 0x80) {
-            this.writeByte(value);
+            this.writeUnsignedByte(value);
         } else if (value < 0x4000) {
-            this.writeByte(((value >> 7) & 0x7F) | 0x80);
-            this.writeByte(value & 0x7F);
+            this.writeUnsignedByte(((value >> 7) & 0x7F) | 0x80);
+            this.writeUnsignedByte(value & 0x7F);
         } else if (value < 0x200000) {
-            this.writeByte(((value >> 14) & 0x7F) | 0x80);
-            this.writeByte(((value >> 7) & 0x7F) | 0x80);
-            this.writeByte(value & 0x7F);
+            this.writeUnsignedByte(((value >> 14) & 0x7F) | 0x80);
+            this.writeUnsignedByte(((value >> 7) & 0x7F) | 0x80);
+            this.writeUnsignedByte(value & 0x7F);
         } else if (value < 0x40000000) {
-            this.writeByte(((value >> 22) & 0x7F) | 0x80);
-            this.writeByte(((value >> 15) & 0x7F) | 0x80);
-            this.writeByte(((value >> 8) & 0x7F) | 0x80);
-            this.writeByte(value & 0xFF);
+            this.writeUnsignedByte(((value >> 22) & 0x7F) | 0x80);
+            this.writeUnsignedByte(((value >> 15) & 0x7F) | 0x80);
+            this.writeUnsignedByte(((value >> 8) & 0x7F) | 0x80);
+            this.writeUnsignedByte(value & 0xFF);
         } else {
             throw new RangeError('Integer out of range: ' + value);
         }
@@ -163,6 +164,8 @@ class AMF3 extends AbstractAMF {
             case Markers.DICTIONARY: return this.readDictionary(); break
             case Markers.VECTOR_OBJECT: case Markers.VECTOR_INT: case Markers.VECTOR_UINT: case Markers.VECTOR_DOUBLE: return this.readVector(marker); break
             case Markers.BYTE_ARRAY: return this.readByteArray(); break
+            case Markers.XML: return this.readXML(); break
+            case Markers.XML_DOC: return this.readXML(true); break
             case Markers.OBJECT: return this.readObject(); break
         }
     }
@@ -366,6 +369,27 @@ class AMF3 extends AbstractAMF {
     }
 
     /**
+     * @param {Boolean} legacy - Whether or not to use the AMF0 format without references.
+     * @returns {XML}
+     */
+    readXML(legacy = false) {
+        const ref = this.readUInt29();
+
+        if((ref & 1) === 0) {
+            return this.getReference(ref >> 1, 'object');
+        }
+        
+        const len = ref >> 1;
+        const raw = len > 0 ? this.readUTFBytes(len) : EMPTY_STRING;
+        const xml = XML.parse(raw, legacy);
+        xml.legacy = legacy;
+
+        this.objectTable.set(this.objectTable.size, xml);
+
+        return xml;
+    }
+
+    /**
      * @param {Object} data 
      */
     readObject() {
@@ -474,6 +498,8 @@ class AMF3 extends AbstractAMF {
                     this.writeArray(data);
                 } else if(data instanceof ByteArray) {
                     this.writeByteArray(data);
+                } else if(data instanceof XML) {
+                    this.writeXML(data);
                 } else {
                     this.writeObject(data);
                 }
@@ -653,6 +679,17 @@ class AMF3 extends AbstractAMF {
         }
 
         data.position = 0;
+    }
+
+    /**
+     * @param {XML} data
+     */
+    writeXML(data) {
+        this.writeByte(data.legacy ? Markers.XML_DOC : Markers.XML);
+
+        if(!this.byReference(data)) {
+            this.writeUTF(data.stringify());
+        }
     }
 
     /**

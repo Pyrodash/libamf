@@ -81,7 +81,7 @@ client.call('pizza-service.order', { type: 'cheese' }).then(res => {
 |Typed Object|✔|✔|
 |Date|✔|✔|
 |AVMPLUS|✔|✔|
-|XML|✗|✗|TODO|
+|XML|✔|✔|
 ### AMF3
 |Type|Read|Write|Note|
 |--|--|--|--|
@@ -97,7 +97,7 @@ client.call('pizza-service.order', { type: 'cheese' }).then(res => {
 |Vector|✔|✔|
 |Byte Array|✔|✔|
 |Custom object|✔|✔|
-|XML|✗|✗|TODO|
+|XML|✔|✔|
 
 ## TODO
  - Better documentation

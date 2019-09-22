@@ -10,7 +10,12 @@
     "url": "https://jackie.pw"
   },
   "license": "MIT",
-  "keywords": ["amf", "action message format", "amf0", "amf3"],
+  "keywords": [
+    "amf",
+    "action message format",
+    "amf0",
+    "amf3"
+  ],
   "homepage": "https://github.com/Pyrodash/libamf",
   "bugs": "https://github.com/Pyrodash/libamf/issues",
   "repository": {
@@ -20,7 +25,8 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "bytearray-node": "github:pyrodash/bytearray-node",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "fast-xml-parser": "^3.12.20"
   },
   "devDependencies": {
     "tape": "^4.11.0"
