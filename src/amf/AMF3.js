@@ -427,24 +427,7 @@ class AMF3 extends AbstractAMF {
         if(traits.isExternalizable) {
             obj.readExternal(this, traits);
         } else {
-            const {properties} = traits;
-
-            for(var i = 0; i < properties.length; i++) {
-                const prop = properties[i];
-                const val = this.read();
-
-                obj[prop] = val;
-            }
-
-            if(traits.isDynamic) {
-                var key = this.readString();
-
-                while (key.length > 0) {
-                    obj[key] = this.read();
-
-                    key = this.readString();
-                }
-            }
+            this.readObjectProperties(obj, traits);
         }
 
         return obj;
@@ -482,6 +465,39 @@ class AMF3 extends AbstractAMF {
         this.traitTable.set(this.traitTable.size, traits);
 
         return traits;
+    }
+
+    /**
+     * @param {Object} data 
+     * @param {Object} traits 
+     */
+    readObjectProperties(data, traits) {
+        if(!traits) {
+            traits = this.getTraitsByClass(data);
+        }
+
+        if(!traits) {
+            throw new Error('Traits for object were not found.');
+        }
+
+        const {properties} = traits;
+
+        for (var i = 0; i < properties.length; i++) {
+            const prop = properties[i];
+            const val = this.read();
+
+            data[prop] = val;
+        }
+
+        if (traits.isDynamic) {
+            var key = this.readString();
+
+            while (key.length > 0) {
+                obj[key] = this.read();
+
+                key = this.readString();
+            }
+        }
     }
 
     /**
@@ -768,7 +784,7 @@ class AMF3 extends AbstractAMF {
             traits = this.getTraitsByClass(data);
         }
 
-        const properties = traits.properties || Object.keys(data);
+        const properties = traits ? traits.properties : Object.keys(data);
 
         for (var i = 0; i < properties.length; i++) {
             this.writeString(properties[i], false);
