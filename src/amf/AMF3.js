@@ -757,7 +757,7 @@ class AMF3 extends AbstractAMF {
         const isExternalizable = typeof data.writeExternal === 'function';
         const isDynamic = data.isDynamic !== undefined ? data.isDynamic : false; // not quite sure how this is supposed to work
 
-        const keys = Object.keys(data);
+        const keys = isExternalizable ? [] : Object.keys(data);
         const count = keys.length;
         const traits = {
             className: name,
