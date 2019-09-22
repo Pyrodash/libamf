@@ -4,16 +4,15 @@ class ArrayCollection extends Array {
     readExternal(AMF3, traits) {
         this.empty();
         
-        const source = {};
-        AMF3.readObjectProperties(source, traits);
-
+        const source = AMF3.read();
+        
         for(var i in source) {
             this.push(source[i]);
         }
     }
 
     writeExternal(AMF3, traits) {
-        AMF3.writeObjectProperties(this, traits);
+        AMF3.write([...this]);
     }
 
     empty() {
