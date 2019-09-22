@@ -6,6 +6,8 @@ const Markers     = require('./Markers').AMF0;
 const AbstractAMF = require('./AbstractAMF');
 const AMF3        = require('./AMF3');
 
+const XML         = require('./flash/XML');
+
 class AMF0 extends AbstractAMF {
     constructor(core) {
         super(core);
@@ -64,6 +66,7 @@ class AMF0 extends AbstractAMF {
             case Markers.OBJECT: return this.readObject(); break
             case Markers.TYPED_OBJECT: return this.readObject(true); break
             case Markers.DATE: return this.readDate(); break
+            case Markers.XML_DOC: return this.readXML(); break
             case Markers.AVMPLUS: return this.core.deserialize(this, this.core.ENCODING.AMF3); break
         }
     }
@@ -165,6 +168,13 @@ class AMF0 extends AbstractAMF {
         return date;
     }
 
+    /**
+     * @returns {XML}
+     */
+    readXML() {
+        return XML.parse(this.readString(true), false);
+    }
+
     getReference(data) {
         const index = this.references.indexOf(data);
 
@@ -208,11 +218,11 @@ class AMF0 extends AbstractAMF {
                     this.writeECMAArray(data);
                 } else if (data instanceof Array) {
                     this.writeStrictArray(data);
+                } else if(data instanceof XML) {
+                    this.writeXML(data);
                 } else {
                     this.writeObject(data);
                 }
-
-                // todo: xml
             break;
             default:
                 throw new Error('Invalid data type: ' + type);
@@ -224,11 +234,12 @@ class AMF0 extends AbstractAMF {
     /**
      * @param {String} data 
      * @param {Boolean} writeType
+     * @param {Boolean} [forceLong=false]
      */
-    writeString(data, writeType = true) {
+    writeString(data, writeType = true, forceLong = false) {
         data = String(data);
 
-        if (data.length > 65535) {
+        if (forceLong || data.length > 65535) {
             if (writeType) {
                 this.writeByte(Markers.AMF0.LONG_STRING);
             }
@@ -282,6 +293,9 @@ class AMF0 extends AbstractAMF {
         this.writeUnsignedShort(data);
     }
 
+    /**
+     * @param {Array} data 
+     */
     writeStrictArray(data) {
         this.writeByte(Markers.STRICT_ARRAY);
         this.writeUnsignedInt(data.length);
@@ -289,6 +303,14 @@ class AMF0 extends AbstractAMF {
         for(var i in data) {
             this.write(data[i]);
         }
+    }
+
+    /**
+     * @param {XML} data
+     */
+    writeXML(data) {
+        this.writeByte(Markers.XML_DOC);
+        this.writeString(data.stringify(), false, true);
     }
     
     /**

@@ -110,6 +110,7 @@ class AMF {
 
 module.exports = new AMF;
 
+module.exports.XML = require('./amf/flash/XML');
 module.exports.Dictionary = require('./amf/flash/Dictionary');
 module.exports.Vector = require('./amf/flash/Vector');
 module.exports.ByteArray = require('bytearray-node');

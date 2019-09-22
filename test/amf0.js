@@ -66,6 +66,22 @@ it('can read/write ecma arrays', (tape) => {
     tape.end();
 });
 
+it('can read/write xml', (tape) => {
+    const xml = new AMF.XML({
+        person: {
+            '@name': 'Tent',
+            '@age': '18',
+            friend: {
+                '@name': 'Jackie',
+                '@age': '16'
+            }
+        }
+    });
+
+    sTest(xml, tape);
+    tape.end();
+});
+
 it('can read/write typed objects', (tape) => {
     class Person {
         constructor(name, age) {
