@@ -88,7 +88,7 @@ class Packet {
             const amf = new AMF.AMF0(AMF);
             amf.buffer = buffer;
             
-            this.version = amf.readShort();
+            this.version = amf.readUnsignedShort();
 
             if(this.version !== 0 && this.version !== 3) {
                 return reject(new Error('Malformed AMF packet.'));
@@ -116,8 +116,17 @@ class Packet {
 
             const messageCount = amf.readUnsignedShort();
             
+            var lastLength = 0;
+
             for(var i = 0; i < messageCount; i++) {
                 amf.resetReferences();
+
+                if(i === 1) {
+                    //console.log(amf.readByte());
+                    //console.log(amf.readByte());
+                    console.log(lastLength);
+                    console.log(amf.position);
+                }
 
                 const targetURI = amf.readUTF();
                 const responseURI = amf.readUTF();
@@ -128,8 +137,11 @@ class Packet {
                 this.messages.push(new Message({
                     targetURI,
                     responseURI,
-                    content
+                    content,
+                    packet: this
                 }));
+
+                lastLength = length;
             }
 
             if(cb) {
@@ -185,19 +197,18 @@ class Packet {
         }
     }
 
-    resolveURI(uri = '') {
-        uri = uri.charAt(0) === '/' ? uri.substr(1) : uri;
-
-        return this.messages[0].responseURI + (uri.length > 0 ? '/' + uri : '');
-    }
-
     /**
      * @param {Message|Array<Message>|*} data - Data to send back
      * @param {Boolean} [isStatus=false] - Whether or not this message's targetURI will be onStatus
+     * @param {Message=} parentMessage
      */
-    respond(data, isStatus = false) {
+    respond(data, isStatus = false, parentMessage) {
         if(!this.res) {
             this.res = new Packet(this.request, this.response);
+        }
+
+        if(!parentMessage) {
+            parentMessage = this.messages[0];
         }
 
         const packet = this.res;
@@ -209,8 +220,8 @@ class Packet {
             packet.messages.push(...data);
         } else {
             const isBaseObject = data.targetURI !== undefined;
-            const targetURI = isStatus || data.isStatus ? this.resolveURI('onStatus') : this.resolveURI('onResult');
-            const responseURI = this.resolveURI();
+            const targetURI = isStatus || data.isStatus ? parentMessage.resolveURI('onStatus') : parentMessage.resolveURI('onResult');
+            const responseURI = parentMessage.resolveURI();
 
             if(typeof data === 'object') {
                 data.isStatus = null;
@@ -230,9 +241,14 @@ class Packet {
             }
         }
 
-        setTimeout(() => {
+        if(packet.sendTimer) {
+            clearTimeout(packet.sendTimer);
+        }
+
+        packet.sendTimer = setTimeout(() => {
+            packet.sendTimer = null;
             packet.write();
-        }, 1);
+        }, 0);
     }
 
     /**

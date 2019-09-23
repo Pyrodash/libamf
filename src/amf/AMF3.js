@@ -493,7 +493,7 @@ class AMF3 extends AbstractAMF {
             var key = this.readString();
 
             while (key.length > 0) {
-                obj[key] = this.read();
+                data[key] = this.read();
 
                 key = this.readString();
             }
