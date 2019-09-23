@@ -121,13 +121,6 @@ class Packet {
             for(var i = 0; i < messageCount; i++) {
                 amf.resetReferences();
 
-                if(i === 1) {
-                    //console.log(amf.readByte());
-                    //console.log(amf.readByte());
-                    console.log(lastLength);
-                    console.log(amf.position);
-                }
-
                 const targetURI = amf.readUTF();
                 const responseURI = amf.readUTF();
 
