@@ -58,7 +58,7 @@ class Service {
         }
 
         if(handler) {
-            handler(...message.content, packet);
+            handler(...message.content, message);
         } else {
             packet.status(new Error('Method ' + method + ' not found.'));
         }
