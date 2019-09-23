@@ -38,6 +38,10 @@ class AMF0 extends AbstractAMF {
 
     resetReferences() {
         this.references = [];
+
+        if(this.amf3) {
+            this.amf3.resetReferences();
+        }
     }
 
     reset() {
@@ -67,7 +71,7 @@ class AMF0 extends AbstractAMF {
             case Markers.TYPED_OBJECT: return this.readObject(true); break
             case Markers.DATE: return this.readDate(); break
             case Markers.XML_DOC: return this.readXML(); break
-            case Markers.AVMPLUS: return this.core.deserialize(this, this.core.ENCODING.AMF3); break
+            case Markers.AVMPLUS: return this.readAVMPlus(); break
         }
     }
 
@@ -173,6 +177,19 @@ class AMF0 extends AbstractAMF {
      */
     readXML() {
         return XML.parse(this.readString(true), false);
+    }
+
+    /**
+     * @returns {*}
+     */
+    readAVMPlus() {
+        this.amf3.buffer = this.buffer;
+        this.amf3.position = this.position;
+
+        this.amf3.read();
+
+        this.buffer = this.amf3.buffer;
+        this.position = this.amf3.position;
     }
 
     getReference(data) {
