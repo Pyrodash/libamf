@@ -34,8 +34,9 @@ class PizzaService extends AMF.Service {
         super('pizza');
     }
 
-    order(pizza, packet) {
-        packet.respond('Successfully created order with toppings ' + pizza.toppings.join(', ') + '.');
+    order(pizza, message) {
+        console.log(message.content);
+        message.respond('Successfully created order with toppings ' + pizza.toppings.join(', ') + '.');
     }
 }
 

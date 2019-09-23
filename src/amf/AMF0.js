@@ -186,10 +186,12 @@ class AMF0 extends AbstractAMF {
         this.amf3.buffer = this.buffer;
         this.amf3.position = this.position;
 
-        this.amf3.read();
+        const res = this.amf3.read();
 
         this.buffer = this.amf3.buffer;
         this.position = this.amf3.position;
+
+        return res;
     }
 
     getReference(data) {
