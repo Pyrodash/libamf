@@ -216,7 +216,7 @@ class Packet {
             const targetURI = isStatus || data && data.isStatus ? parentMessage.resolveURI('onStatus') : parentMessage.resolveURI('onResult');
             const responseURI = parentMessage.resolveURI();
 
-            if(typeof data === 'object') {
+            if(data && typeof data === 'object') {
                 data.isStatus = null;
                 delete data.isStatus;
             }
