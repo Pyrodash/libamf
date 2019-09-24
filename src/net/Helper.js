@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    isPacketArray: arr => arr.constructor === Array && !(arr.find(item => !(item instanceof Packet))),
+    isPacketArray: arr => arr && arr.constructor === Array && !(arr.find(item => !(item instanceof Packet))),
     getPath: function (myMdl) {
         const _module = require('module');
 

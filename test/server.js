@@ -38,6 +38,10 @@ class PizzaService extends AMF.Service {
         console.log(message.content);
         message.respond('Successfully created order with toppings ' + pizza.toppings.join(', ') + '.');
     }
+
+    cancel(id, message) {
+        return 'Cancelled order for pizza ' + id + '.';
+    }
 }
 
 const service = new PizzaService();
