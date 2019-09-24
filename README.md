@@ -21,6 +21,7 @@ class PizzaService extends Service {
 		
 		this.register('order', 'handleOrder');
 		this.register('cancelOrder', this.cancelOrder.bind(this));
+		this.register('asyncMethod', 'asyncMethod');
 	}
 	
 	handleOrder(pizza, message) {
@@ -30,7 +31,13 @@ class PizzaService extends Service {
 	cancelOrder(pizza, message) {
 		const id = pizza.id;
 		
-		message.respond({ status: 1, message: 'Order ' + id + ' has been cancelled successfully.'});
+		return { status: 1, message: 'Order ' + id + ' has been cancelled successfully.'};
+	}
+
+	asyncMethod(message) {
+		return new Promise((resolve, reject) => {
+			resolve('this will be sent as a response');
+		});
 	}
 }
 
@@ -53,6 +60,10 @@ libamf.Service.ForceSuffix = false;
 You can also allow any service method to be used without registration by doing:
 ```javascript
 libamf.Service.RequireRegistration = false;
+```
+If you wish to return other values in your service methods, you can disable responding with return values using:
+```javascript
+libamf.Service.ReturnResponses = false;
 ```
 ### Client
 ```javascript

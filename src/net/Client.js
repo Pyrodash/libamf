@@ -18,6 +18,11 @@ class Client {
          * @type {String}
          */
         this.url = opts.url;
+
+        /**
+         * @type {Object}
+         */
+        this.responses = {};
     }
 
     /**
@@ -42,56 +47,86 @@ class Client {
                 cb = args.pop();
             }
 
-            var packet = new Packet();
-            packet.messages.push(new Message({
+            if(!this.packet) {
+                this.packet = new Packet();
+            }
+
+            var responseURI = '/' + (this.packet.messages.length + 1);
+
+            this.packet.messages.push(new Message({
                 targetURI: command,
-                responseURI: '/1',
+                responseURI,
                 content: args
             }));
-            const raw = packet.write();
 
-            const parsedURL = url.parse(this.url);
-            const http = parsedURL.protocol === 'http:' ? HTTP : HTTPS;
-            const options = {
-                hostname: parsedURL.hostname,
-                port: parsedURL.port,
-                path: parsedURL.path,
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-amf',
-                    'Content-Length': raw.length
-                }
-            };
+            this.responses[responseURI] = {resolve, reject};
+            
+            if(this.sendTimer) {
+                clearTimeout(this.sendTimer);
+            }
 
-            const req = http.request(options, res => {
-                const data = [];
-
-                res.on('data', d => {
-                    data.push(d);
-                });
-
-                res.on('close', () => {
-                    const buf = Buffer.concat(data);
-
-                    Packet.read(buf).then(packet => {
-                        const firstMessage = packet.messages[0];
-                        
-                        if(firstMessage.targetURI === packet.resolveURI('onStatus')) {
-                            reject(firstMessage.content);
-                        } else {
-                            resolve(firstMessage.content);
-                        }
-                    })
-                });
-            });
-
-            req.on('error', err => {
-                reject(err);
-            });
-
-            req.write(raw);
-            req.end();
+            this.sendTimer = setTimeout(() => {
+                this.send();
+            }, 0);
         });
+    }
+
+    /**
+     * @private
+     */
+    send() {
+        const packet = this.packet;
+        const responses = this.responses;
+
+        this.packet = null;
+        this.responses = {};
+
+        const raw = packet.write();
+
+        const parsedURL = url.parse(this.url);
+        const http = parsedURL.protocol === 'http:' ? HTTP : HTTPS;
+        const options = {
+            hostname: parsedURL.hostname,
+            port: parsedURL.port,
+            path: parsedURL.path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-amf',
+                'Content-Length': raw.length
+            }
+        };
+
+        const req = http.request(options, res => {
+            const data = [];
+
+            res.on('data', d => {
+                data.push(d);
+            });
+
+            res.on('close', () => {
+                const buf = Buffer.concat(data);
+
+                Packet.read(buf).then(packet => {
+                    for(var i in responses) {
+                        const response = responses[i];
+                        const message = packet.messages.find(message => message.targetURI.startsWith(i))
+
+                        if(message) {
+                            response.resolve(message.content);
+                        } else {
+                            response.reject(new Error('Message ' + i.substr(1) + ' returned nothing.'));
+                        }
+                    }
+                });
+            });
+        });
+
+        req.on('error', err => {
+            reject(err);
+        });
+
+        req.write(raw);
+        req.end();
     }
 }
 

@@ -46,7 +46,7 @@ class Service {
      * @param {Message} message 
      * @param {Packet} packet 
      */
-    process(method, message, packet) {
+    async process(method, message, packet) {
         var handler;
 
         if(this.requireRegistration || Service.RequireRegistration) {
@@ -58,7 +58,17 @@ class Service {
         }
 
         if(handler) {
-            handler(...message.content, message);
+            var res = handler(...message.content, message);
+
+            if(Service.ReturnResponses) {
+                if(res instanceof Promise) {
+                    res = await res;
+                }
+
+                if(res !== undefined) {
+                    message.respond(res);
+                }
+            }
         } else {
             packet.status(new Error('Method ' + method + ' not found.'));
         }
@@ -68,5 +78,6 @@ class Service {
 Service.BannedMethods = ['constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', 'toLocaleString']; // Ban default object methods
 Service.RequireRegistration = true;
 Service.ForceSuffix = true;
+Service.ReturnResponses = true;
 
 module.exports = Service;
