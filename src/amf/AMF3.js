@@ -11,8 +11,10 @@ const AbstractAMF    = require('./AbstractAMF');
 const ByteArray      = require('bytearray-node');
 const AMF0           = require('./AMF0');
 
-const EMPTY_STRING   = '';
-const UINT29_MASK    = 2^29 - 1;
+const EMPTY_STRING    = '';
+const UINT29_MASK     = 2^29 - 1;
+const INT28_MAX_VALUE = 0x0FFFFFFF; // 2^28 - 1
+const INT28_MIN_VALUE = 0xF0000000; // -2^28 in 2^29 scheme
 
 class AMF3 extends AbstractAMF {
     constructor(core) {
@@ -520,7 +522,7 @@ class AMF3 extends AbstractAMF {
 
         switch(type) {
             case 'string': this.writeString(data.toString()); break
-            case 'number': this.writeDouble(data); break // All numbers are doubles in JavaScript
+            case 'number': this.writeNumber(data); break
             case 'bigint': this.writeString(data.toString()); break
             case 'boolean': this.writeBoolean(data); break
             case 'object':
@@ -578,8 +580,12 @@ class AMF3 extends AbstractAMF {
      * @param {Number} data 
      */
     writeInteger(data) {
-        this.writeByte(Markers.INT);
-        this.writeByte(data & UINT29_MASK);
+        if (data >= INT28_MIN_VALUE && data <= INT28_MAX_VALUE) {
+            this.writeByte(Markers.INT);
+            this.writeUInt29(data & UINT29_MASK);
+        } else {
+            this.writeDouble(data);
+        }
     }
 
     /**
@@ -588,6 +594,20 @@ class AMF3 extends AbstractAMF {
     writeDouble(data) {
         this.writeByte(Markers.DOUBLE);
         super.writeDouble(data);
+    }
+
+    /**
+     * @param {Number} data 
+     */
+    writeNumber(data) {
+        if(AMF3.AssumeIntegers) {
+            if(data % 1 === 0) {
+                // Write whole numbers as integers
+                return this.writeInteger(data);
+            }
+        }
+
+        return this.writeDouble(data);
     }
 
     /**
@@ -795,5 +815,7 @@ class AMF3 extends AbstractAMF {
         }
     }
 }
+
+AMF3.AssumeIntegers = false;
 
 module.exports = AMF3;
