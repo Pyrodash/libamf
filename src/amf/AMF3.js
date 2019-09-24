@@ -377,10 +377,7 @@ class AMF3 extends AbstractAMF {
         const byteArray = new ByteArray();
         
         this.objectTable.set(this.objectTable.size, byteArray);
-
-        for(var i = 0; i < length; i++) {
-            byteArray.writeByte(this.readByte());
-        }
+        this.readBytes(byteArray, 0, length);
         
         byteArray.position = 0;
 
@@ -536,7 +533,11 @@ class AMF3 extends AbstractAMF {
                     this.writeECMAArray(data);
                 } else if(data instanceof Array) {
                     this.writeArray(data);
-                } else if(data instanceof ByteArray) {
+                } else if(data instanceof ByteArray || data instanceof Buffer) {
+                    if (data instanceof Buffer) {
+                        data = new ByteArray(data);
+                    }
+
                     this.writeByteArray(data);
                 } else if(data instanceof XML) {
                     this.writeXML(data);
@@ -732,9 +733,7 @@ class AMF3 extends AbstractAMF {
 
         data.position = 0;
 
-        for(var i = 0; i < data.length; i++) {
-            this.writeByte(data.readByte());
-        }
+        this.writeBytes(data);
 
         data.position = 0;
     }
