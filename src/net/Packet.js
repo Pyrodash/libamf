@@ -212,8 +212,8 @@ class Packet {
         } else if(Helper.isPacketArray(data)) {
             packet.messages.push(...data);
         } else {
-            const isBaseObject = data.targetURI !== undefined;
-            const targetURI = isStatus || data.isStatus ? parentMessage.resolveURI('onStatus') : parentMessage.resolveURI('onResult');
+            const isBaseObject = data && data.targetURI !== undefined;
+            const targetURI = isStatus || data && data.isStatus ? parentMessage.resolveURI('onStatus') : parentMessage.resolveURI('onResult');
             const responseURI = parentMessage.resolveURI();
 
             if(typeof data === 'object') {
