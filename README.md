@@ -65,6 +65,10 @@ If you wish to return other values in your service methods, you can disable resp
 ```javascript
 libamf.Service.ReturnResponses = false;
 ```
+To write whole numbers as integers, use this:
+```javascript
+libamf.AMF3.AssumeIntegers = true;
+```
 ### Client
 ```javascript
 const {Client} = require('libamf');
