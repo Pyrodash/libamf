@@ -14,7 +14,14 @@
     "amf",
     "action message format",
     "amf0",
-    "amf3"
+    "amf3",
+    "adobe",
+    "actionscript",
+    "action",
+    "message",
+    "format",
+    "binary",
+    "flash"
   ],
   "homepage": "https://github.com/Pyrodash/libamf",
   "bugs": "https://github.com/Pyrodash/libamf/issues",
