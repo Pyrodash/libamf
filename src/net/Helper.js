@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 module.exports = {
     isPacketArray: arr => arr && arr.constructor === Array && !(arr.find(item => !(item instanceof Packet))),
@@ -20,6 +21,17 @@ module.exports = {
         }
 
         return name;
+    },
+    readFile: function(...args) {
+        return new Promise((resolve, reject) => {
+            fs.readFile(...args, (err, res) => {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            });
+        });
     }
 };
 
