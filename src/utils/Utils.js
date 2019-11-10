@@ -1,3 +1,6 @@
+const fs   = require('fs');
+const util = require('util');
+
 /**
  * Construct a class using variable string
  * @param {String} className
@@ -29,3 +32,5 @@ exports.convertToBuffer = (buffer) => {
 exports.isAssociativeArray = data => data instanceof Array && Object.keys(data).length !== data.length;
 
 exports.getConstructor = cls => cls.constructor.name !== 'Function' ? cls.constructor : cls;
+
+exports.readFileAsync = util.promisify(fs.readFile);
