@@ -122,7 +122,9 @@ class Client {
         });
 
         req.on('error', err => {
-            reject(err);
+            for(var i in responses) {
+                responses[i].reject(err);
+            }
         });
 
         req.write(raw);
