@@ -53,7 +53,12 @@ class AMF3 extends AbstractAMF {
 
     reset() {
         this.resetReferences();
-        super.reset();
+        
+        if(this.byteArray) {
+            this.byteArray.reset();
+        } else {
+            this.byteArray = new ByteArray();
+        }
     }
 
     /**
@@ -310,7 +315,7 @@ class AMF3 extends AbstractAMF {
         }
 
         const length = ref >> 1;
-        const fixed = super.readBoolean();
+        const fixed = this.readBoolean();
         
         var cls = type !== Markers.VECTOR_OBJECT ? Number : null;
         var clsName = null;
@@ -506,13 +511,13 @@ class AMF3 extends AbstractAMF {
         if(data == null) {
             this.writeByte(data === undefined ? Markers.UNDEFINED : Markers.NULL);
 
-            return this.buffer;
+            return this.byteArray.buffer;
         }
 
         if(typeof data.writeExternal === 'function') {
             this.writeObject(data);
 
-            return this.buffer;
+            return this.byteArray.buffer;
         }
 
         const type = typeof data;
@@ -549,7 +554,7 @@ class AMF3 extends AbstractAMF {
                 throw new Error('Invalid data type: ' + type);
         }
 
-        return this.buffer;
+        return this.byteArray.buffer;
     }
 
     writeUTF(data) {
@@ -594,7 +599,7 @@ class AMF3 extends AbstractAMF {
      */
     writeDouble(data) {
         this.writeByte(Markers.DOUBLE);
-        super.writeDouble(data);
+        this.super_writeDouble(data);
     }
 
     /**
@@ -626,7 +631,7 @@ class AMF3 extends AbstractAMF {
 
         if(!this.byReference(data)) {
             this.writeUInt29(1); // Write invalid reference
-            super.writeDouble(data.getTime());
+            this.super_writeDouble(data.getTime());
         }
     }
 
@@ -686,7 +691,7 @@ class AMF3 extends AbstractAMF {
 
         if(!this.byReference(data)) {
             this.writeUInt29((data.length << 1) | 1);
-            super.writeBoolean(true); // fixed
+            this.super_writeBoolean(true); // fixed
 
             if(type === Markers.VECTOR_OBJECT) {
                 const className = !([Number, String, Object]).includes(type.constructor) ? this.getClassName(data.type) : EMPTY_STRING; // Empty string if it's a primitve type
@@ -700,7 +705,7 @@ class AMF3 extends AbstractAMF {
                 if(type === Markers.VECTOR_INT) {
                     this.writeInt(val);
                 } else if(type === Markers.VECTOR_DOUBLE) {
-                    super.writeDouble(val);
+                    this.super_writeDouble(val);
                 } else {
                     this.write(val);
                 }
