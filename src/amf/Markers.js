@@ -58,5 +58,11 @@ module.exports = {
         CORRELATION_ID_BYTES_FLAG: 2,
         // CommandMessage
         OPERATION_FLAG: 1
+    },
+
+    SOL: {
+        Header: -1,
+        LSO: 2,
+        FilePath: 3
     }
 }
