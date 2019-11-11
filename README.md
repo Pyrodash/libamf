@@ -69,6 +69,10 @@ To write whole numbers as integers, use this:
 ```javascript
 libamf.AMF3.AssumeIntegers = true;
 ```
+To disable the default homepage, use:
+```javascript
+libamf.Server.DisableDefaultHome = true;
+```
 ### Client
 ```javascript
 const {Client} = require('libamf');
@@ -77,6 +81,31 @@ const client = new Client();
 client.connect('http://localhost:8080/');
 client.call('pizza-service.order', { type: 'cheese' }).then(res => {
 	console.log(res);
+});
+```
+### SOL
+```javascript
+const fs = require('fs');
+const libamf = require('libamf');
+
+fs.readFile('path/to/file.sol', (err, data) => {
+	console.log(libamf.SOL.read(data));
+
+	const newObj = new libamf.SOL.LSO({
+        allow: false,
+        always: false,
+        allowsecure: false,
+        alwayssecure: false,
+        klimit: 100,
+        hstsEnabled: false,
+        hstsMaxAge: '0',
+        hstsIncSubDomain: false,
+        hstsStartTime: '0'
+	});
+	newObj.filename = 'domain/settings';
+	newObj.version = 0;
+
+	console.log(newObj.write());
 });
 ```
 
