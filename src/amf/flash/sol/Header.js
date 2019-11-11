@@ -1,5 +1,7 @@
 'use strict';
 
+/* Credits to Gabriel Mariani for SOL [https://github.com/gmariani] */
+
 const Markers = require('../../Markers').SOL;
 
 class Header {
