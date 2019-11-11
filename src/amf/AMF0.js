@@ -4,8 +4,9 @@ const Utils       = require('../utils/Utils');
 const Markers     = require('./Markers').AMF0;
 
 const AbstractAMF = require('./AbstractAMF');
-const AMF3        = require('./AMF3');
+const ByteArray   = require('bytearray-node');
 
+const AMF3        = require('./AMF3');
 const XML         = require('./flash/XML');
 
 class AMF0 extends AbstractAMF {
@@ -29,6 +30,11 @@ class AMF0 extends AbstractAMF {
          */
         this.amf3 = null;
 
+        /**
+         * @type {ByteArray}
+         */
+        this.byteArray = null;
+
         this.reset();
     }
 
@@ -49,7 +55,12 @@ class AMF0 extends AbstractAMF {
         this.resetReferences();
         
         this.amf3 = new AMF3(this.core);
-        super.reset();
+
+        if(this.byteArray) {
+            this.byteArray.reset();
+        } else {
+            this.byteArray = new ByteArray();
+        }
     }
 
     read(marker) {
@@ -145,7 +156,7 @@ class AMF0 extends AbstractAMF {
         var marker = this.readByte();
 
         while(marker !== Markers.OBJECT_END) {
-            this.position--;
+            this.byteArray.position--;
 
             const key = this.readUTF();
             const value = this.read();
@@ -183,13 +194,9 @@ class AMF0 extends AbstractAMF {
      * @returns {*}
      */
     readAVMPlus() {
-        this.amf3.buffer = this.buffer;
-        this.amf3.position = this.position;
+        this.amf3.byteArray = this.byteArray;
 
         const res = this.amf3.read();
-
-        this.buffer = this.amf3.buffer;
-        this.position = this.amf3.position;
 
         return res;
     }
@@ -210,7 +217,7 @@ class AMF0 extends AbstractAMF {
         if(data == null) {
             this.writeByte(data === null ? Markers.NULL : Markers.UNDEFINED);
             
-            return this.buffer;
+            return this.byteArray.buffer;
         }
 
         const type = typeof data;
@@ -247,7 +254,7 @@ class AMF0 extends AbstractAMF {
                 throw new Error('Invalid data type: ' + type);
         }
         
-        return this.buffer;
+        return this.byteArray.buffer;
     }
 
     /**
@@ -280,7 +287,7 @@ class AMF0 extends AbstractAMF {
      */
     writeDouble(data) {
         this.writeByte(Markers.NUMBER);
-        super.writeDouble(data);
+        this.super_writeDouble(data);
     }
 
     /**
@@ -292,7 +299,7 @@ class AMF0 extends AbstractAMF {
             this.writeByte(Markers.BOOLEAN);
         }
         
-        super.writeBoolean(data);
+        this.super_writeBoolean(data);
     }
 
     /**
@@ -300,7 +307,7 @@ class AMF0 extends AbstractAMF {
      */
     writeDate(data) {
         this.writeByte(Markers.DATE);
-        super.writeDouble(data.getTime());
+        this.super_writeDouble(data.getTime());
         this.writeShort(data.getTimezoneOffset());
     }
 
@@ -390,13 +397,8 @@ class AMF0 extends AbstractAMF {
     writeAVMPlus(data) {
         this.writeByte(Markers.AVMPLUS);
 
-        this.amf3.buffer = this.buffer;
-        this.amf3.position = this.position;
-
+        this.amf3.byteArray = this.byteArray;
         this.amf3.write(data);
-
-        this.buffer = this.amf3.buffer;
-        this.position = this.amf3.position;
     }
 }
 
