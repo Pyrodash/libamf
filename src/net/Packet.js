@@ -1,13 +1,14 @@
 'use strict';
 
-const express = require('express');
+const express   = require('express');
+const ByteArray = require('bytearray-node');
 
-const AMF     = require('../');
-const Header  = require('./Header');
-const Message = require('./Message');
+const AMF       = require('../');
+const Header    = require('./Header');
+const Message   = require('./Message');
 
-const Helper  = require('./Helper');
-const Data    = new WeakMap();
+const Helper    = require('./Helper');
+const Data      = new WeakMap();
 
 const UNKNOWN_CONTENT_LENGTH = 1;
 
@@ -86,7 +87,7 @@ class Packet {
             }
 
             const amf = new AMF.AMF0(AMF);
-            amf.buffer = buffer;
+            amf.byteArray = new ByteArray(buffer);
             
             this.version = amf.readUnsignedShort();
 
@@ -179,14 +180,16 @@ class Packet {
             res.write(message.content);
         }
 
+        const buffer = res.byteArray.buffer;
+
         if(this.response) {
             this.response.set('Content-Type', 'application/x-amf');
-            this.response.set('Content-Length', res.length);
-            this.response.end(res.buffer);
+            this.response.set('Content-Length', buffer.length);
+            this.response.end(buffer);
 
             this.response = null;
         } else {
-            return res.buffer;
+            return buffer;
         }
     }
 
