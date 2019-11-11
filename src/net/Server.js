@@ -1,5 +1,7 @@
 'use strict';
 
+const path         = require('path');
+
 const express      = require('express');
 const bodyParser   = require('body-parser');
 
@@ -49,6 +51,13 @@ class Server extends EventEmitter {
         this.app.use(bodyParser.raw({
             type: 'application/x-amf'
         }));
+
+
+        if(!Server.DisableDefaultHome) {
+            this.app.get('/', (req, res) => {
+                res.sendFile(path.join(__dirname, 'static', 'index.html'));
+            });
+        }
 
         this.app.get('/crossdomain.xml', (req, res) => {
             res.set('Content-Type', 'text/xml');
@@ -144,5 +153,6 @@ class Server extends EventEmitter {
     }
 }
 
+Server.DisableDefaultHome = false;
 
 module.exports = Server;
