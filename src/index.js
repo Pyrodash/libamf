@@ -1,6 +1,7 @@
 'use strict';
 
 const {convertToBuffer} = require('./utils/Utils');
+const ByteArray         = require('bytearray-node');
 
 const classMap = {
     'flex.messaging.io.ArrayCollection': require('./amf/flash/flex/ArrayCollection')
@@ -71,10 +72,9 @@ class AMF {
                 method = 'read';
 
                 if(data.buffer && (!(data instanceof Buffer))) {
-                    handler.position = data.position;
-                    handler.buffer = convertToBuffer(data.buffer);
+                    handler.byteArray = data;
                 } else {
-                    handler.buffer = convertToBuffer(data);
+                    handler.byteArray = new ByteArray(convertToBuffer(data));
                 }
         }
 
@@ -118,5 +118,7 @@ module.exports.Message = require('./net/Message');
 module.exports.Service = require('./net/Service');
 module.exports.Server = require('./net/Server');
 module.exports.Client = require('./net/Client');
+
+module.exports.SOL = require('./amf/flash/sol/SOL');
 
 // Is this a horrible solution for cyclic dependencies? If you know a better solution please submit a PR
