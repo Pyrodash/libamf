@@ -101,6 +101,8 @@ class SOL {
                     case Markers.LSO:
                         this.header = tag.header;
                         this.body = tag.body;
+                        this.filename = tag.filename;
+                        this.version = tag.version;
                     break;
                     case Markers.FilePath:
                         this.flex = tag;
