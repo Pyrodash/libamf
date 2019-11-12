@@ -3,7 +3,7 @@
 /* Credits to Gabriel Mariani for SOL [https://github.com/gmariani] */
 /* Warning: Not tested well enough */
 
-const utils     = require('../../../utils/Utils');
+const fs        = require('fs');
 const ByteArray = require('bytearray-node');
 
 const AMF       = require('../../../');
@@ -142,6 +142,39 @@ SOL.read = function(data) {
     sol.parse(data);
 
     return sol;
+};
+/**
+ * @param path {String}
+ */
+SOL.readFile = function(path) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, (err, data) => {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(this.read(data));
+            }
+        })
+    });
+};
+/**
+ * @param path {String} - Target filepath
+ * @param data {LSO|FilePath|Object} - Data to be written
+ */
+SOL.writeFile = function(path, data) {
+    if(!(data instanceof LSO || data instanceof FilePath)) {
+        data = new LSO(data);
+    }
+
+    return new Promise((resolve, reject) => {
+        fs.writeFile(path, data, data.write(), (err) => {
+           if(err)  {
+               reject(err);
+           } else {
+               resolve();
+           }
+        });
+    });
 };
 /**
  * @param data {ByteArray|Buffer}
