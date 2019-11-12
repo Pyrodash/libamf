@@ -169,7 +169,7 @@ SOL.writeFile = function(path, data) {
     }
 
     return new Promise((resolve, reject) => {
-        fs.writeFile(path, data, data.write(), (err) => {
+        fs.writeFile(path, data.write(), (err) => {
            if(err)  {
                reject(err);
            } else {
