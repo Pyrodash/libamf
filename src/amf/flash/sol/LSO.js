@@ -65,7 +65,7 @@ class LSO {
             delete this.body.filename;
         }
 
-        if((!isNaN(this.body.version) && this.body.version != null) && !this.version) {
+        if((!isNaN(this.body.version) && this.body.version !== null) && !this.version) {
             this.version = this.body.version;
             this.body.version = null;
 
