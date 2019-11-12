@@ -20,10 +20,6 @@ class LSO {
         const ba = ctx.byteArray;
         var start = ba.position;
 
-        function getLength() {
-            return ba.position - start;
-        }
-
         const sig = ba.readUTFBytes(4);
 
         if (sig !== 'TCSO') {
@@ -62,6 +58,20 @@ class LSO {
     }
 
     write(ctx) {
+        if(this.body.filename && !this.filename) {
+            this.filename = this.body.filename;
+            this.body.filename = null;
+
+            delete this.body.filename;
+        }
+
+        if(this.body.version && !this.version) {
+            this.version = this.body.version;
+            this.body.version = null;
+
+            delete this.body.version;
+        }
+
         const baBody = new ByteArray();
         //baBody.endian = false;
 
