@@ -31,12 +31,12 @@ class Header {
            the Flash Player will invoke the onStatus handler on the NetConnection object.
          * @type {Boolean}
          */
-        this.required = opts.required || false;
+        this.required = required || false;
 
         /**
          * @type {*}
          */
-        this.content = opts.content;
+        this.content = content;
     }
 }
 
