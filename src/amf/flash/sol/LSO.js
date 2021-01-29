@@ -101,7 +101,7 @@ class LSO {
 
         for(var i in this.body) {
             if(this.version === 3) {
-                amf3.writeString(i);
+                amf3.writeString(i, false);
                 amf3.write(this.body[i]);
             } else if(this.version === 0) {
                 baBody.writeUTF(i);
