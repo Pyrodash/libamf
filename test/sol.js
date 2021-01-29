@@ -21,7 +21,9 @@ const obj = {
         hstsMaxAge: '0',
         hstsIncSubDomain: false,
         hstsStartTime: '0'
-    }
+    },
+    filename: 'play.cprewritten.net/settings',
+    version: 0
 };
 
 it('can read LSOs', (tape) => {
