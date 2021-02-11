@@ -16,29 +16,29 @@ const int = libamf.deserialize(data, libamf.ENCODING.AMF3);
 const {Server, Service} = require('libamf');
 
 class PizzaService extends Service {
-	constructor() {
-		super('pizza');
-		
-		this.register('order', 'handleOrder');
-		this.register('cancelOrder', this.cancelOrder.bind(this));
-		this.register('asyncMethod', 'asyncMethod');
-	}
-	
-	handleOrder(pizza, message) {
-		message.respond({ status: 1, message: pizza.type + ' pizza ordered!'});
-	}
-	
-	cancelOrder(pizza, message) {
-		const id = pizza.id;
-		
-		return { status: 1, message: 'Order ' + id + ' has been cancelled successfully.'};
-	}
+    constructor() {
+        super('pizza');
+        
+        this.register('order', 'handleOrder');
+        this.register('cancelOrder', this.cancelOrder.bind(this));
+        this.register('asyncMethod', 'asyncMethod');
+    }
+    
+    handleOrder(pizza, message) {
+        message.respond({ status: 1, message: pizza.type + ' pizza ordered!'});
+    }
+    
+    cancelOrder(pizza, message) {
+        const id = pizza.id;
+        
+        return { status: 1, message: 'Order ' + id + ' has been cancelled successfully.'};
+    }
 
-	asyncMethod(message) {
-		return new Promise((resolve, reject) => {
-			resolve('this will be sent as a response');
-		});
-	}
+    asyncMethod(message) {
+        return new Promise((resolve, reject) => {
+            resolve('this will be sent as a response');
+        });
+    }
 }
 
 const server = new Server();
@@ -50,7 +50,7 @@ server.on('data', packet => {
 
 server.registerService(pizzaService);
 server.listen(8080, () => {
-	console.log('Listening on port 8080');
+    console.log('Listening on port 8080');
 });
 ```
 You can stop services from enforcing the `-service` suffix to the name by doing:
@@ -80,7 +80,7 @@ const client = new Client();
 
 client.connect('http://localhost:8080/');
 client.call('pizza-service.order', { type: 'cheese' }).then(res => {
-	console.log(res);
+    console.log(res);
 });
 ```
 ### SOL
@@ -89,9 +89,9 @@ const fs = require('fs');
 const libamf = require('libamf');
 
 fs.readFile('path/to/file.sol', (err, data) => {
-	console.log(libamf.SOL.read(data));
+    console.log(libamf.SOL.read(data));
 
-	const newObj = new libamf.SOL.LSO({
+    const newObj = new libamf.SOL.LSO({
         allow: false,
         always: false,
         allowsecure: false,
@@ -101,11 +101,11 @@ fs.readFile('path/to/file.sol', (err, data) => {
         hstsMaxAge: '0',
         hstsIncSubDomain: false,
         hstsStartTime: '0'
-	});
-	newObj.filename = 'domain/settings';
-	newObj.version = 0;
+    });
+    newObj.filename = 'domain/settings';
+    newObj.version = 0;
 
-	console.log(newObj.write());
+    console.log(newObj.write());
 });
 ```
 
