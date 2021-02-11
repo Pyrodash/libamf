@@ -108,7 +108,7 @@ class LSO {
                 amf0.write(this.body[i]);
             }
 
-            baBody.writeUnsignedByte();
+            baBody.writeByte(0);
         }
 
         const ba = ctx && ctx.byteArray ? ctx.byteArray : new ByteArray();

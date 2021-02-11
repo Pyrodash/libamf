@@ -776,12 +776,13 @@ class AMF3 extends AbstractAMF {
      * @returns {Object}
      */
     writeObjectTraits(data) {
-        const name = data.constructor === Object ? EMPTY_STRING : this.getClassName(data);
+        const isAnonymousObject = data.constructor === Object;
+        const name = isAnonymousObject ? EMPTY_STRING : this.getClassName(data);
 
         const isExternalizable = typeof data.writeExternal === 'function';
-        const isDynamic = data.isDynamic !== undefined ? data.isDynamic : false; // not quite sure how this is supposed to work
+        const isDynamic = data.__isDynamic !== undefined ? data.__isDynamic : (isExternalizable || isAnonymousObject);
 
-        const keys = isExternalizable ? [] : Object.keys(data);
+        const keys = isDynamic ? [] : Object.keys(data);
         const count = keys.length;
         const traits = {
             className: name,
@@ -816,6 +817,15 @@ class AMF3 extends AbstractAMF {
 
         for (var i = 0; i < properties.length; i++) {
             this.write(data[properties[i]]);
+        }
+
+        if (traits.isDynamic) {
+            for (var i in data) {
+                this.writeString(i, false);
+                this.write(data[i]);
+            }
+
+            this.writeString(EMPTY_STRING, false);
         }
     }
 }
