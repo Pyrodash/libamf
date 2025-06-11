@@ -12,9 +12,9 @@ const ByteArray      = require('bytearray-node');
 const AMF0           = require('./AMF0');
 
 const EMPTY_STRING    = '';
-const UINT29_MASK     = 2^29 - 1;
-const INT28_MAX_VALUE = 0x0FFFFFFF; // 2^28 - 1
-const INT28_MIN_VALUE = 0xF0000000; // -2^28 in 2^29 scheme
+const UINT29_MASK     = 0x1FFFFFFF;
+const INT28_MAX_VALUE = 268435455; // 2^28 - 1
+const INT28_MIN_VALUE = -268435456; // -2^28 in 2^29 scheme
 
 class AMF3 extends AbstractAMF {
     constructor(core) {
