@@ -64,7 +64,7 @@ class AMF0 extends AbstractAMF {
     }
 
     read(marker) {
-        if(!marker) {
+        if(marker === undefined) {
             marker = this.readByte();
         }
 
@@ -121,7 +121,7 @@ class AMF0 extends AbstractAMF {
      * @returns {Map}
      */
     readECMAArray() {
-        const length = this.readUnsignedShort();
+        const length = this.readUnsignedInt();
         const map = new Map();
 
         this.references.push(map);
@@ -153,20 +153,29 @@ class AMF0 extends AbstractAMF {
 
         this.references.push(obj);
 
-        var marker = this.readByte();
+		while (true) {
+			const pos = this.byteArray.position;
 
-        while(marker !== Markers.OBJECT_END) {
-            this.byteArray.position--;
+			const len = this.readUnsignedShort();
 
-            const key = this.readUTF();
-            const value = this.read();
+			if (len === 0) {
+				const marker = this.readByte();
 
-            obj[key] = value;
+				if (marker === Markers.OBJECT_END)
+					break;
 
-            marker = this.readByte();
-        }
-        
-        return obj;
+				this.byteArray.position = pos;
+			} else {
+				this.byteArray.position = pos;
+			}
+
+			const key = this.readUTF();
+			const marker = this.readByte();
+
+			obj[key] = this.read(marker);
+		}
+
+		return obj;
     }
 
     /**
@@ -262,25 +271,25 @@ class AMF0 extends AbstractAMF {
      * @param {Boolean} writeType
      * @param {Boolean} [forceLong=false]
      */
-    writeString(data, writeType = true, forceLong = false) {
-        data = String(data);
+	writeString(data, writeType = true, forceLong = false) {
+	    data = String(data);
 
-        if (forceLong || data.length > 65535) {
-            if (writeType) {
-                this.writeByte(Markers.AMF0.LONG_STRING);
-            }
+	    if (forceLong || Buffer.byteLength(data) > 65535) {
+	        if (writeType) {
+	            this.writeByte(Markers.LONG_STRING);
+	        }
 
-            this.writeUnsignedInt(data.length);
-        } else {
-            if (writeType) {
-                this.writeByte(Markers.STRING);
-            }
+	        this.writeUnsignedInt(Buffer.byteLength(data));
+	    } else {
+	        if (writeType) {
+	            this.writeByte(Markers.STRING);
+	        }
 
-            this.writeUnsignedShort(data.length);
-        }
+	        this.writeUnsignedShort(Buffer.byteLength(data));
+	    }
 
-        this.writeUTFBytes(data);
-    }
+	    this.writeUTFBytes(data);
+	}
 
     /**
      * @param {Number} data 
@@ -346,7 +355,7 @@ class AMF0 extends AbstractAMF {
         this.writeByte(Markers.ECMA_ARRAY);
 
         if(data instanceof Map) {
-            this.writeUnsignedShort(data.size);
+            this.writeUnsignedInt(data.size);
 
             for(const [key, value] of data) {
                 this.writeString(key, false);
@@ -354,7 +363,7 @@ class AMF0 extends AbstractAMF {
             }
         } else {
             // AMF0 uses 0 length for associative arrays, we write the length anyway
-            this.writeUnsignedShort(Object.keys(data).length)
+            this.writeUnsignedInt(Object.keys(data).length)
 
             for (const key in data) {
                 this.writeString(key, false)
@@ -387,6 +396,7 @@ class AMF0 extends AbstractAMF {
     }
 
     writeObjectEnd() {
+		this.writeUnsignedShort(0);
         this.writeByte(Markers.OBJECT_END);
     }
 
