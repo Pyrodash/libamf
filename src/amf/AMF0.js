@@ -64,7 +64,7 @@ class AMF0 extends AbstractAMF {
     }
 
     read(marker) {
-        if(!marker) {
+        if(marker === undefined) {
             marker = this.readByte();
         }
 
