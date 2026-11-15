@@ -121,7 +121,7 @@ class AMF0 extends AbstractAMF {
      * @returns {Map}
      */
     readECMAArray() {
-        const length = this.readUnsignedShort();
+        const length = this.readUnsignedInt();
         const map = new Map();
 
         this.references.push(map);
@@ -346,7 +346,7 @@ class AMF0 extends AbstractAMF {
         this.writeByte(Markers.ECMA_ARRAY);
 
         if(data instanceof Map) {
-            this.writeUnsignedShort(data.size);
+            this.writeUnsignedInt(data.size);
 
             for(const [key, value] of data) {
                 this.writeString(key, false);
@@ -354,7 +354,7 @@ class AMF0 extends AbstractAMF {
             }
         } else {
             // AMF0 uses 0 length for associative arrays, we write the length anyway
-            this.writeUnsignedShort(Object.keys(data).length)
+            this.writeUnsignedInt(Object.keys(data).length)
 
             for (const key in data) {
                 this.writeString(key, false)
