@@ -153,20 +153,29 @@ class AMF0 extends AbstractAMF {
 
         this.references.push(obj);
 
-        var marker = this.readByte();
+		while (true) {
+			const pos = this.byteArray.position;
 
-        while(marker !== Markers.OBJECT_END) {
-            this.byteArray.position--;
+			const len = this.readUnsignedShort();
 
-            const key = this.readUTF();
-            const value = this.read();
+			if (len === 0) {
+				const marker = this.readByte();
 
-            obj[key] = value;
+				if (marker === Markers.OBJECT_END)
+					break;
 
-            marker = this.readByte();
-        }
-        
-        return obj;
+				this.byteArray.position = pos;
+			} else {
+				this.byteArray.position = pos;
+			}
+
+			const key = this.readUTF();
+			const marker = this.readByte();
+
+			obj[key] = this.read(marker);
+		}
+
+		return obj;
     }
 
     /**
