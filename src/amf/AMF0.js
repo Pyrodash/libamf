@@ -271,25 +271,25 @@ class AMF0 extends AbstractAMF {
      * @param {Boolean} writeType
      * @param {Boolean} [forceLong=false]
      */
-    writeString(data, writeType = true, forceLong = false) {
-        data = String(data);
+	writeString(data, writeType = true, forceLong = false) {
+	    data = String(data);
 
-        if (forceLong || data.length > 65535) {
-            if (writeType) {
-                this.writeByte(Markers.AMF0.LONG_STRING);
-            }
+	    if (forceLong || Buffer.byteLength(data) > 65535) {
+	        if (writeType) {
+	            this.writeByte(Markers.LONG_STRING);
+	        }
 
-            this.writeUnsignedInt(data.length);
-        } else {
-            if (writeType) {
-                this.writeByte(Markers.STRING);
-            }
+	        this.writeUnsignedInt(Buffer.byteLength(data));
+	    } else {
+	        if (writeType) {
+	            this.writeByte(Markers.STRING);
+	        }
 
-            this.writeUnsignedShort(data.length);
-        }
+	        this.writeUnsignedShort(Buffer.byteLength(data));
+	    }
 
-        this.writeUTFBytes(data);
-    }
+	    this.writeUTFBytes(data);
+	}
 
     /**
      * @param {Number} data 
