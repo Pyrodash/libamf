@@ -4,7 +4,8 @@ const {convertToBuffer} = require('./utils/Utils');
 const ByteArray         = require('bytearray-node');
 
 const classMap = {
-    'flex.messaging.io.ArrayCollection': require('./amf/flash/flex/ArrayCollection')
+    'flex.messaging.io.ArrayCollection': require('./amf/flash/flex/ArrayCollection'),
+    'flex.messaging.io.ObjectProxy': require('./amf/flash/flex/ObjectProxy')
 };
 
 class AMF {
