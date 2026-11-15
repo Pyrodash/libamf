@@ -396,6 +396,7 @@ class AMF0 extends AbstractAMF {
     }
 
     writeObjectEnd() {
+		this.writeUnsignedShort(0);
         this.writeByte(Markers.OBJECT_END);
     }
 
